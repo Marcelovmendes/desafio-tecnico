@@ -17,6 +17,8 @@ model Participant {
   name      String
   balance   Int
   bets      Bet[]
+
+  @@map("participants")
 }
 
 model Game {
@@ -29,6 +31,8 @@ model Game {
   awayTeamScore Int
   isFinished    Boolean
   bets          Bet[]
+
+  @@map("games")
 }
 
 model Bet {
@@ -44,4 +48,6 @@ model Bet {
   amountWon     Int?
   game          Game        @relation(fields: [gameId], references: [id])
   participant   Participant @relation(fields: [participantId], references: [id])
+
+  @@map("bets")
 }
