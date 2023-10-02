@@ -2,6 +2,7 @@ import { Bet } from '@prisma/client';
 import betRepository from '../../repositories/bets';
 import { invalidAmountError, missingFiledsError, notFoundError } from '../../errors';
 import gamesRepository from '../../repositories/games';
+import participantsRepository from '../../repositories/participants-repository.ts';
 
 async function postBet({ homeTeamScore, awayTeamScore, amountBet, gameId, participantId }: checkBetParams) {
   await validateBet({ homeTeamScore, awayTeamScore, amountBet, gameId, participantId });
@@ -22,7 +23,9 @@ export async function validateBet(bet: checkBetParams) {
   if (!bet.homeTeamScore || !bet.awayTeamScore || !bet.gameId || !bet.participantId)
     throw missingFiledsError('Missing fields in bet');
 
-  if (!bet.amountBet || bet.amountBet < 0) throw invalidAmountError('Invalid amount in bet');
+  const balanceParticipant = await participantsRepository.findParticipantById(bet.participantId);
+  if (!bet.amountBet || bet.amountBet < 0 || bet.amountBet > balanceParticipant.balance)
+    throw invalidAmountError('Invalid amount in bet');
 
   const gameExists = await gamesRepository.findGameById(bet.gameId);
 

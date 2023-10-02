@@ -1,10 +1,11 @@
 import { Participant } from '@prisma/client';
-import { conflictError, missingFiledsError, notFoundError } from '../../errors/index';
+import { conflictError, invalidAmountError, missingFiledsError, notFoundError } from '../../errors/index';
 import participantsRepository from '../../repositories/participants-repository.ts';
 
 async function createParticipant({ name, balance }: CreateParticipantParams): Promise<Participant> {
   await validateParticipant({ name, balance });
   const balanceInCents = balance * 100;
+  if (balance < 10) throw invalidAmountError('Balance cannot be less than R$10,00');
   const participant = await participantsRepository.createParticipants(name, balanceInCents);
 
   return participant;

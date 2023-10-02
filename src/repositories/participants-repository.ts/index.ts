@@ -21,6 +21,14 @@ async function findParticipantByName(name: string) {
   });
   return participant;
 }
+async function findParticipantById(id: number) {
+  const participant = await prisma.participant.findFirst({
+    where: {
+      id,
+    },
+  });
+  return participant;
+}
 async function updateParticipantBalance(id: number, balance: number) {
   const participant = await prisma.participant.update({
     where: {
@@ -37,6 +45,7 @@ const participantsRepository = {
   findParticipantByName,
   updateParticipantBalance,
   getParticipants,
+  findParticipantById,
 };
 
 export default participantsRepository;
