@@ -57,9 +57,12 @@ export async function finishGame({ homeTeamScore, awayTeamScore, id }: FinishGam
     );
 
     if (status === 'WON') {
-      const amount = (amountWon / totalWin) * totalAmount * (1 - houseFee);
+      const amount = Math.floor(amountWon / totalWin) * totalAmount * (1 - houseFee);
       await betRepository.updateStatusBet(bet.id, amount, status);
       await participantsRepository.updateParticipantBalance(bet.participantId, amount);
+    }
+    if (status === 'LOST') {
+      await betRepository.updateStatusBet(bet.id, amountWon, status);
     }
   });
 

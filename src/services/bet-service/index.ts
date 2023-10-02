@@ -9,8 +9,12 @@ async function postBet({ homeTeamScore, awayTeamScore, amountBet, gameId, partic
 
   const amountInCents = amountBet * 100;
 
+  const partcipant = await participantsRepository.findParticipantById(participantId);
+  if (partcipant.balance < amountInCents) throw invalidAmountError('Insufficient balance');
+
   const bet = await betRepository.createBet(homeTeamScore, awayTeamScore, amountInCents, gameId, participantId);
 
+  await participantsRepository.updateParticipantBalance(participantId, -amountInCents);
   return bet;
 }
 
