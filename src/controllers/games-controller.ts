@@ -10,7 +10,11 @@ async function createGame(req: Request, res: Response) {
 
   res.status(httpStatus.CREATED).send(game);
 }
+async function getGames(req: Request, res: Response) {
+  const games = await gamesService.getGames();
 
+  res.status(httpStatus.OK).send(games);
+}
 async function finishedGame(req: Request, res: Response) {
   const { homeTeamScore, awayTeamScore } = req.body as { homeTeamScore: number; awayTeamScore: number };
   const id = parseInt(req.params.id);
@@ -22,6 +26,7 @@ async function finishedGame(req: Request, res: Response) {
 const gamesController = {
   createGame,
   finishedGame,
+  getGames,
 };
 
 export default gamesController;

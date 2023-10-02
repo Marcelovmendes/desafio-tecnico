@@ -1,5 +1,5 @@
 import { Participant } from '@prisma/client';
-import { conflictError, missingFiledsError } from '../../errors/index';
+import { conflictError, missingFiledsError, notFoundError } from '../../errors/index';
 import participantsRepository from '../../repositories/participants-repository.ts';
 
 async function createParticipant({ name, balance }: CreateParticipantParams): Promise<Participant> {
@@ -9,9 +9,14 @@ async function createParticipant({ name, balance }: CreateParticipantParams): Pr
 
   return participant;
 }
-
+async function findManyParticipants() {
+  const participants = await participantsRepository.getParticipants();
+  if (participants.length === 0) throw notFoundError('No participants found');
+  return participants;
+}
 const participantsService = {
   createParticipant,
+  findManyParticipants,
 };
 
 export async function validateParticipant(participant: CreateParticipantParams) {

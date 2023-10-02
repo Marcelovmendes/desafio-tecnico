@@ -9,6 +9,10 @@ async function createParticipants(name: string, balance: number) {
   });
   return participant;
 }
+async function getParticipants() {
+  const participants = await prisma.participant.findMany();
+  return participants;
+}
 async function findParticipantByName(name: string) {
   const participant = await prisma.participant.findFirst({
     where: {
@@ -32,6 +36,7 @@ const participantsRepository = {
   createParticipants,
   findParticipantByName,
   updateParticipantBalance,
+  getParticipants,
 };
 
 export default participantsRepository;

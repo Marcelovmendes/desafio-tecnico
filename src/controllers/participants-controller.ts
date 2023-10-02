@@ -8,9 +8,15 @@ async function postParticipants(req: Request, res: Response) {
 
   res.status(httpStatus.CREATED).send(participant);
 }
+async function getParticipants(req: Request, res: Response) {
+  const participants = await participantsService.findManyParticipants();
+
+  res.status(httpStatus.OK).send(participants);
+}
 
 const participantsController = {
   postParticipants,
+  getParticipants,
 };
 
 export default participantsController;

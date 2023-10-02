@@ -13,6 +13,11 @@ async function createGame(homeTeamName: string, awayTeamName: string) {
   return game;
 }
 
+async function getGames() {
+  const games = await prisma.game.findMany();
+  return games;
+}
+
 async function IsTeamInGame(teamName: string) {
   const game = await prisma.game.findMany({
     where: {
@@ -55,6 +60,7 @@ const gamesRepository = {
   IsTeamInGame,
   findGameById,
   updateGameScore,
+  getGames,
 };
 
 export default gamesRepository;

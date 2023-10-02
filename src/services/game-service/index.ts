@@ -10,6 +10,11 @@ async function postGame({ homeTeamName, awayTeamName }: CreateGameParams) {
   const game = await gamesRepository.createGame(homeTeamName, awayTeamName);
   return game;
 }
+async function getGames() {
+  const games = await gamesRepository.getGames();
+  if (games.length === 0) throw notFoundError('No games found');
+  return games;
+}
 export async function finishGame({ homeTeamScore, awayTeamScore, id }: FinishGameParams) {
   const game = await gamesRepository.findGameById(id);
   if (!game) throw notFoundError('Game not found');
@@ -74,5 +79,6 @@ export type FinishGameParams = Omit<Game, 'updatedAt' | 'createdAt' | 'homeTeamN
 const gamesService = {
   postGame,
   finishGame,
+  getGames,
 };
 export default gamesService;
