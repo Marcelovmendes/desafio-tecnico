@@ -19,9 +19,31 @@ async function createBet(
   });
   return bet;
 }
-
+async function getBetsByGame(id: number) {
+  const bets = await prisma.bet.findMany({
+    where: {
+      gameId: id,
+    },
+  });
+  return bets;
+}
+async function updateStatusBet(id: number, amountWon: number, status: string) {
+  const bet = await prisma.bet.update({
+    where: {
+      id,
+    },
+    data: {
+      updatedAt: new Date(),
+      status,
+      amountWon,
+    },
+  });
+  return bet;
+}
 const betRepository = {
   createBet,
+  getBetsByGame,
+  updateStatusBet,
 };
 
 export default betRepository;

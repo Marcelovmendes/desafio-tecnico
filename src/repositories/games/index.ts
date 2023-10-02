@@ -36,10 +36,25 @@ async function findGameById(id: number) {
   });
   return game;
 }
+async function updateGameScore(homeTeamScore: number, awayTeamScore: number, id: number) {
+  const game = await prisma.game.update({
+    where: {
+      id,
+    },
+    data: {
+      updatedAt: new Date(),
+      homeTeamScore,
+      awayTeamScore,
+      isFinished: true,
+    },
+  });
+  return game;
+}
 const gamesRepository = {
   createGame,
   IsTeamInGame,
   findGameById,
+  updateGameScore,
 };
 
 export default gamesRepository;
