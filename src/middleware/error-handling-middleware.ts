@@ -26,7 +26,7 @@ export function handleApplicationErrors(
     });
   }
 
-  if (err.name === 'UnauthorizedError') {
+  if (err.name === 'InvalidAmountError') {
     return res.status(httpStatus.UNAUTHORIZED).send({
       message: err.message,
     });
