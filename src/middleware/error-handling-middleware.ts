@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import httpStatus from 'http-status';
+import { ApplicationError } from '@/protocols';
 
 export function handleApplicationErrors(
   err: ApplicationError | Error,
@@ -7,13 +8,13 @@ export function handleApplicationErrors(
   res: Response,
   _next: NextFunction,
 ) {
-  if (err.name === 'CannotEnrollBeforeStartDateError') {
-    return res.status(httpStatus.BAD_REQUEST).send({
+  if (err.name === 'MissingFieldsError') {
+    return res.status(httpStatus.UNPROCESSABLE_ENTITY).send({
       message: err.message,
     });
   }
 
-  if (err.name === 'ConflictError' || err.name === 'DuplicatedEmailError') {
+  if (err.name === 'ConflictError') {
     return res.status(httpStatus.CONFLICT).send({
       message: err.message,
     });
@@ -42,8 +43,3 @@ export function handleApplicationErrors(
     message: 'Internal Server Error',
   });
 }
-
-export type ApplicationError = {
-  name: string;
-  message: string;
-};
