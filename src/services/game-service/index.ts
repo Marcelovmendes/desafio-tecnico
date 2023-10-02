@@ -1,8 +1,9 @@
-import { Game } from '@prisma/client';
+import { Bet, Game } from '@prisma/client';
 import gamesRepository from '../../repositories/games';
 import { conflictError, missingFiledsError, notFoundError } from '../../errors';
 import betRepository from '../../repositories/bets';
 import participantsRepository from '../../repositories/participants-repository.ts';
+import { BetAccumulator, CreateGameParams, FinishGameParams } from '../../protocols';
 
 async function postGame({ homeTeamName, awayTeamName }: CreateGameParams) {
   await checkGame({ homeTeamName, awayTeamName });
@@ -23,8 +24,31 @@ export async function finishGame({ homeTeamScore, awayTeamScore, id }: FinishGam
   const result = await gamesRepository.updateGameScore(homeTeamScore, awayTeamScore, id);
   const bets = await betRepository.getBetsByGame(id);
 
+  const { totalAmount, totalWin } = bets.reduce(
+    (acc: BetAccumulator, bet: Bet) => {
+      const { amountWon, status } = calculateAmountWon(
+        homeTeamScore,
+        awayTeamScore,
+        bet.homeTeamScore,
+        bet.awayTeamScore,
+        bet.amountBet,
+      );
+
+      if (status === 'WON') {
+        acc.totalAmount += amountWon;
+        acc.totalWin += amountWon;
+      }
+      if (status === 'LOST') {
+        acc.totalAmount += amountWon;
+      }
+      return acc;
+    },
+    { totalAmount: 0, totalWin: 0 },
+  );
+
+  const houseFee = 0.3;
   const updatePromises = bets.map(async (bet) => {
-    const amount = calculateAmountWon(
+    const { amountWon, status } = calculateAmountWon(
       homeTeamScore,
       awayTeamScore,
       bet.homeTeamScore,
@@ -32,10 +56,10 @@ export async function finishGame({ homeTeamScore, awayTeamScore, id }: FinishGam
       bet.amountBet,
     );
 
-    await betRepository.updateStatusBet(bet.id, amount.amountWon, amount.status);
-
-    if (amount.amountWon > 0) {
-      await participantsRepository.updateParticipantBalance(bet.participantId, amount.amountWon);
+    if (status === 'WON') {
+      const amount = (amountWon / totalWin) * totalAmount * (1 - houseFee);
+      await betRepository.updateStatusBet(bet.id, amount, status);
+      await participantsRepository.updateParticipantBalance(bet.participantId, amount);
     }
   });
 
@@ -59,23 +83,22 @@ export function calculateAmountWon(
   awayTeamFinalScore: number,
   betHomeTeamScore: number,
   betAwayTeamScore: number,
-
   amountBet: number,
 ) {
   let amountWon = 0;
   let status;
+
   if (homeTeamFinalScore === betHomeTeamScore && awayTeamFinalScore === betAwayTeamScore) {
-    amountWon = amountBet * 2.0;
+    amountWon = amountBet;
     status = 'WON';
-  } else if (homeTeamFinalScore != betHomeTeamScore && awayTeamFinalScore != betAwayTeamScore) {
+  } else {
     amountWon = amountBet;
     status = 'LOST';
   }
+
   return { amountWon, status };
 }
 
-export type CreateGameParams = Pick<Game, 'homeTeamName' | 'awayTeamName'>;
-export type FinishGameParams = Omit<Game, 'updatedAt' | 'createdAt' | 'homeTeamName' | 'awayTeamName' | 'isFinished'>;
 const gamesService = {
   postGame,
   finishGame,

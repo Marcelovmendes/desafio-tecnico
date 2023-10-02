@@ -30,12 +30,15 @@ async function findParticipantById(id: number) {
   return participant;
 }
 async function updateParticipantBalance(id: number, balance: number) {
+  const amountToAdd = balance;
   const participant = await prisma.participant.update({
     where: {
       id,
     },
     data: {
-      balance,
+      balance: {
+        increment: amountToAdd,
+      },
     },
   });
   return participant;
