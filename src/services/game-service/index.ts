@@ -11,8 +11,8 @@ async function postGame({ homeTeamName, awayTeamName }: CreateGameParams) {
   const game = await gamesRepository.createGame(homeTeamName, awayTeamName);
   return game;
 }
-async function getGames() {
-  const games = await gamesRepository.getGames();
+async function getGames(skip: number, perPage: number) {
+  const games = await gamesRepository.findGamesWithPagination(skip, perPage);
   if (games.length === 0) throw notFoundError('No games found');
   return games;
 }
@@ -26,7 +26,7 @@ export async function finishGame({ homeTeamScore, awayTeamScore, id }: FinishGam
 
   const { totalAmount, totalWin } = bets.reduce(
     (acc: BetAccumulator, bet: Bet) => {
-      const { amountWon, status } = calculateAmountWon(
+      const { amountWon, status } = validadeWinOrLose(
         homeTeamScore,
         awayTeamScore,
         bet.homeTeamScore,
@@ -48,7 +48,7 @@ export async function finishGame({ homeTeamScore, awayTeamScore, id }: FinishGam
 
   const houseFee = 0.3;
   const updatePromises = bets.map(async (bet) => {
-    const { amountWon, status } = calculateAmountWon(
+    const { amountWon, status } = validadeWinOrLose(
       homeTeamScore,
       awayTeamScore,
       bet.homeTeamScore,
@@ -81,7 +81,7 @@ export async function checkGame(game: CreateGameParams) {
   if (awayInGame.length > 0 && !awayInGame[0].isFinished) throw conflictError('AwayTeam already in game');
 }
 
-export function calculateAmountWon(
+export function validadeWinOrLose(
   homeTeamFinalScore: number,
   awayTeamFinalScore: number,
   betHomeTeamScore: number,

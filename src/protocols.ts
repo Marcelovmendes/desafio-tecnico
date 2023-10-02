@@ -1,3 +1,5 @@
+import { Game } from '@prisma/client';
+
 export type ApplicationError = {
   name: string;
   message: string;
@@ -21,3 +23,4 @@ export type BetAccumulator = {
 };
 export type CreateGameParams = Pick<Game, 'homeTeamName' | 'awayTeamName'>;
 export type FinishGameParams = Omit<Game, 'updatedAt' | 'createdAt' | 'homeTeamName' | 'awayTeamName' | 'isFinished'>;
+export type checkBetParams = Pick<Bet, 'homeTeamScore' | 'awayTeamScore' | 'amountBet' | 'gameId' | 'participantId'>;

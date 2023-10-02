@@ -1,3 +1,4 @@
+import { count } from 'console';
 import prisma from '../../config/database';
 
 async function createGame(homeTeamName: string, awayTeamName: string) {
@@ -13,9 +14,16 @@ async function createGame(homeTeamName: string, awayTeamName: string) {
   return game;
 }
 
-async function getGames() {
-  const games = await prisma.game.findMany();
+async function findGamesWithPagination(skip: number, perPage: number) {
+  const games = await prisma.game.findMany({
+    skip,
+    take: perPage,
+  });
   return games;
+}
+async function countGames() {
+  const totalGames = await prisma.game.count();
+  return totalGames;
 }
 
 async function IsTeamInGame(teamName: string) {
@@ -60,7 +68,8 @@ const gamesRepository = {
   IsTeamInGame,
   findGameById,
   updateGameScore,
-  getGames,
+  findGamesWithPagination,
+  countGames,
 };
 
 export default gamesRepository;
