@@ -27,8 +27,10 @@ export async function validateBet(bet: checkBetParams) {
   if (!bet.amountBet || bet.amountBet < 0 || bet.amountBet > balanceParticipant.balance)
     throw invalidAmountError('Invalid amount in bet');
 
-  const gameExists = await gamesRepository.findGameById(bet.gameId);
+  const game = await gamesRepository.findGameById(bet.gameId);
+  if (game.isFinished) throw notFoundError('Game is finished');
 
+  const gameExists = await gamesRepository.findGameById(bet.gameId);
   if (!gameExists) throw notFoundError('Game not found');
 
   if (gameExists.isFinished) throw notFoundError('Game is finished');
