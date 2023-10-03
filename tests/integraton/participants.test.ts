@@ -1,5 +1,6 @@
 import supertest from 'supertest';
-import app, { init } from '../../src/app';
+import app from '../../src/app';
+import init from '../../src/app';
 import httpStatus from 'http-status';
 
 import { cleanDB } from '../healpers';
@@ -8,7 +9,6 @@ import { cleanDB } from '../healpers';
 const api = supertest(app);
 
 beforeAll(async () => {
-  await init();
   await cleanDB();
 });
 
