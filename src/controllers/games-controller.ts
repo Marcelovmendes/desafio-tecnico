@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import gamesService from '../services/game-service';
-import { Game } from '@prisma/client';
 import gamesRepository from '../repositories/games';
 
 async function createGame(req: Request, res: Response) {

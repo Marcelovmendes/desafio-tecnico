@@ -1,4 +1,4 @@
-import { Bet, Game } from '@prisma/client';
+import { Bet } from '@prisma/client';
 import gamesRepository from '../../repositories/games';
 import { conflictError, missingFiledsError, notFoundError } from '../../errors';
 import betRepository from '../../repositories/bets';
@@ -20,20 +20,17 @@ export async function finishGame({ homeTeamScore, awayTeamScore, id }: FinishGam
   const game = await gamesRepository.findGameById(id);
   if (!game) throw notFoundError('Game not found');
   if (game.isFinished) throw conflictError('Game already finished');
-
   const result = await gamesRepository.updateGameScore(homeTeamScore, awayTeamScore, id);
   const bets = await betRepository.getBetsByGame(id);
-
   const { totalAmount, totalWin } = bets.reduce(
     (acc: BetAccumulator, bet: Bet) => {
-      const { amountWon, status } = validadeWinOrLose(
+      const { amountWon, status } = validateWinOrLose(
         homeTeamScore,
         awayTeamScore,
         bet.homeTeamScore,
         bet.awayTeamScore,
         bet.amountBet,
       );
-
       if (status === 'WON') {
         acc.totalAmount += amountWon;
         acc.totalWin += amountWon;
@@ -45,24 +42,22 @@ export async function finishGame({ homeTeamScore, awayTeamScore, id }: FinishGam
     },
     { totalAmount: 0, totalWin: 0 },
   );
-
   const houseFee = 0.3;
   const updatePromises = bets.map(async (bet) => {
-    const { amountWon, status } = validadeWinOrLose(
+    const { amountWon, status } = validateWinOrLose(
       homeTeamScore,
       awayTeamScore,
       bet.homeTeamScore,
       bet.awayTeamScore,
       bet.amountBet,
     );
-
     if (status === 'WON') {
       const amount = Math.floor(amountWon / totalWin) * totalAmount * (1 - houseFee);
       await betRepository.updateStatusBet(bet.id, amount, status);
       await participantsRepository.updateParticipantBalance(bet.participantId, amount);
     }
     if (status === 'LOST') {
-      await betRepository.updateStatusBet(bet.id, amountWon, status);
+      await betRepository.updateStatusBet(bet.id, 0, status);
     }
   });
 
@@ -81,7 +76,7 @@ export async function checkGame(game: CreateGameParams) {
   if (awayInGame.length > 0 && !awayInGame[0].isFinished) throw conflictError('AwayTeam already in game');
 }
 
-export function validadeWinOrLose(
+export function validateWinOrLose(
   homeTeamFinalScore: number,
   awayTeamFinalScore: number,
   betHomeTeamScore: number,
