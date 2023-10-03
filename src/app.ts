@@ -6,6 +6,7 @@ import betRouter from "./routes/bet-routes";
 
 import cors from "cors";
 import { handleApplicationErrors } from "./middleware";
+import { connectDb } from "./config";
 //import { connectDb } from './config/database';
 
 const app = express();
@@ -19,4 +20,11 @@ app
 .use(betRouter)
 .use(handleApplicationErrors);
 
+export function init(): Promise<Express> {
+    connectDb();
+    return Promise.resolve(app);
+  }
+  
 export default app;
+
+

@@ -9,7 +9,6 @@ export function handleApplicationErrors(
   res: Response,
   _next: NextFunction,
 ) {
-  console.log(err,'midd')
   if (err.name === 'MissingFieldsError') {
     return res.status(httpStatus.UNPROCESSABLE_ENTITY).send({
       message: err.message,

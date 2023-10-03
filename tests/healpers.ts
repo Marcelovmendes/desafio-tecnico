@@ -1,9 +1,8 @@
-import { PrismaClient } from '@prisma/client';
+import {prisma} from '../src/config/database';
 
-const prisma = new PrismaClient();
 
-export async function cleanDB() {
- await prisma.bet.deleteMany();
- await prisma.game.deleteMany();
- await prisma.participant.deleteMany();
+export async function cleanDb() {
+ await prisma.bet.deleteMany({});   
+ await prisma.game.deleteMany({});   
+ await prisma.participant.deleteMany({});
 }
