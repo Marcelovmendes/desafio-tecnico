@@ -12,7 +12,8 @@ async function createParticipant({ name, balance }: CreateParticipantParams): Pr
 }
 async function findManyParticipants() {
   const participants = await participantsRepository.getParticipants();
-  if (participants.length === 0) throw notFoundError('No participants found');
+  console.log(participants,'service');
+  if (participants.length === 0 ) throw notFoundError('No participants found');
   return participants;
 }
 const participantsService = {

@@ -1,4 +1,4 @@
-import prisma from '../../config/database';
+import { prisma } from '../../config/database';
 
 async function createParticipants(name: string, balance: number) {
   const participant = await prisma.participant.create({
@@ -11,7 +11,11 @@ async function createParticipants(name: string, balance: number) {
 }
 async function getParticipants() {
   const participants = await prisma.participant.findMany();
-  return participants;
+  if (participants.length === 0) {
+    return [];
+  } else {
+    return participants;
+  }
 }
 async function findParticipantByName(name: string) {
   const participant = await prisma.participant.findFirst({

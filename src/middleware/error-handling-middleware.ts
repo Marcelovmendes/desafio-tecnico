@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import httpStatus from 'http-status';
-import { ApplicationError } from '@/protocols';
+import { ApplicationError } from '../protocols';
+
 
 export function handleApplicationErrors(
   err: ApplicationError | Error,
@@ -8,6 +9,7 @@ export function handleApplicationErrors(
   res: Response,
   _next: NextFunction,
 ) {
+  console.log(err,'midd')
   if (err.name === 'MissingFieldsError') {
     return res.status(httpStatus.UNPROCESSABLE_ENTITY).send({
       message: err.message,
@@ -38,7 +40,7 @@ export function handleApplicationErrors(
     });
   }
   console.error(err.name);
-  res.status(httpStatus.INTERNAL_SERVER_ERROR).send({
+ return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({
     error: 'InternalServerError',
     message: 'Internal Server Error',
   });
