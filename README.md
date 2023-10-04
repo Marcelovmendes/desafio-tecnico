@@ -41,3 +41,9 @@ $ npx prisma generate
 ```bash
 $ npm run dev
 ```
+
+## Docker
+
+### Repository and Image access
+
+ https://hub.docker.com/repository/docker/marcelocortess/backend/general
