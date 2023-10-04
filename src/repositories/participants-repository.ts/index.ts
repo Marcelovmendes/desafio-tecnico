@@ -1,4 +1,4 @@
-import { prisma } from '../../config/database';
+import prisma from "../../config/database";
 
 async function createParticipants(name: string, balance: number) {
   const participant = await prisma.participant.create({

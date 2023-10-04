@@ -1,5 +1,4 @@
-import { count } from 'console';
-import { prisma } from '../../config/database';
+import prisma from "../../config/database";
 
 async function createGame(homeTeamName: string, awayTeamName: string) {
   const game = await prisma.game.create({
@@ -49,7 +48,11 @@ async function findGameById(id: number) {
   });
   return game;
 }
-async function updateGameScore(homeTeamScore: number, awayTeamScore: number, id: number) {
+async function updateGameScore(
+  homeTeamScore: number,
+  awayTeamScore: number,
+  id: number
+) {
   const game = await prisma.game.update({
     where: {
       id,

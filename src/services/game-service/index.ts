@@ -3,7 +3,11 @@ import gamesRepository from '../../repositories/games';
 import { conflictError, missingFiledsError, notFoundError } from '../../errors';
 import betRepository from '../../repositories/bets';
 import participantsRepository from '../../repositories/participants-repository.ts';
-import { BetAccumulator, CreateGameParams, FinishGameParams } from '../../protocols';
+import {
+  BetAccumulator,
+  CreateGameParams,
+  FinishGameParams,
+} from '../../protocols';
 
 async function postGame({ homeTeamName, awayTeamName }: CreateGameParams) {
   await checkGame({ homeTeamName, awayTeamName });
@@ -16,11 +20,19 @@ async function getGames(skip: number, perPage: number) {
   if (games.length === 0) throw notFoundError('No games found');
   return games;
 }
-export async function finishGame({ homeTeamScore, awayTeamScore, id }: FinishGameParams) {
+export async function finishGame({
+  homeTeamScore,
+  awayTeamScore,
+  id,
+}: FinishGameParams) {
   const game = await gamesRepository.findGameById(id);
   if (!game) throw notFoundError('Game not found');
   if (game.isFinished) throw conflictError('Game already finished');
-  const result = await gamesRepository.updateGameScore(homeTeamScore, awayTeamScore, id);
+  const result = await gamesRepository.updateGameScore(
+    homeTeamScore,
+    awayTeamScore,
+    id,
+  );
   const bets = await betRepository.getBetsByGame(id);
   const { totalAmount, totalWin } = bets.reduce(
     (acc: BetAccumulator, bet: Bet) => {
@@ -52,10 +64,21 @@ export async function finishGame({ homeTeamScore, awayTeamScore, id }: FinishGam
       bet.amountBet,
     );
     if (status === 'WON') {
-      const amount = Math.floor(amountWon / totalWin) * totalAmount * (1 - houseFee);
-      await betRepository.updateStatusBet(bet.id, amount, status);
-      await participantsRepository.updateParticipantBalance(bet.participantId, amount);
+      const amount = Math.floor(
+        (amountWon / totalWin) * totalAmount * (1 - houseFee),
+      );
+      await betRepository.updateStatusBet(
+        bet.id,
+        amount,
+        status,
+      );
+
+      await participantsRepository.updateParticipantBalance(
+          bet.participantId,
+          amount,
+        );
     }
+
     if (status === 'LOST') {
       await betRepository.updateStatusBet(bet.id, 0, status);
     }
@@ -67,13 +90,16 @@ export async function finishGame({ homeTeamScore, awayTeamScore, id }: FinishGam
 }
 
 export async function checkGame(game: CreateGameParams) {
-  if (!game.homeTeamName || !game.awayTeamName) throw missingFiledsError('Missing fields in game');
+  if (!game.homeTeamName || !game.awayTeamName)
+    throw missingFiledsError('Missing fields in game');
 
   const homeInGame = await gamesRepository.IsTeamInGame(game.homeTeamName);
-  if (homeInGame.length > 0 && !homeInGame[0].isFinished) throw conflictError('HomeTeam already in game');
+  if (homeInGame.length > 0 && !homeInGame[0].isFinished)
+    throw conflictError('HomeTeam already in game');
 
   const awayInGame = await gamesRepository.IsTeamInGame(game.awayTeamName);
-  if (awayInGame.length > 0 && !awayInGame[0].isFinished) throw conflictError('AwayTeam already in game');
+  if (awayInGame.length > 0 && !awayInGame[0].isFinished)
+    throw conflictError('AwayTeam already in game');
 }
 
 export function validateWinOrLose(
@@ -86,7 +112,8 @@ export function validateWinOrLose(
   let amountWon = 0;
   let status;
 
-  if (homeTeamFinalScore === betHomeTeamScore && awayTeamFinalScore === betAwayTeamScore) {
+  if (
+    homeTeamFinalScore === betHomeTeamScore && awayTeamFinalScore === betAwayTeamScore) {
     amountWon = amountBet;
     status = 'WON';
   } else {
