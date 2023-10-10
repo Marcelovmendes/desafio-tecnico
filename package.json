@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "start": "npm run prisma migrate deploy && node dist/server.js",
+    "start": "npm run migration:run && node ./dist/src/server.js",
+    "migration:run": "prisma migrate deploy",
     "test:load-envs": "dotenv -e .env.test",
     "test:migration:run": "npm run test:load-envs prisma migrate deploy",
     "test": "npm run test:load-envs jest",
