@@ -19,6 +19,11 @@ To set up and run this project locally, follow these steps:
 ```bash
 $ npm install
 ```
+
+## Deploy
+
+https://desafio-tecnico-6kh5.onrender.com 
+
 ## Environment Setup
 
 Rename one of the files to .env.
